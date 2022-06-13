@@ -40,4 +40,21 @@ public class RoleController extends BaseController {
         return new ResponseEntity<>(checkNullAndToBaseResp(roleService.deleteById(roleId)), HttpStatus.OK);
     }
 
+    @GetMapping("/reloadById/{id}")
+    public ResponseEntity<?> reloadById(@PathVariable(value = "id") UUID roleId) throws MyAppException {
+        return new ResponseEntity<>(checkNullAndToBaseResp(roleService.reloadById(roleId)), HttpStatus.OK);
+    }
+
+    @GetMapping("/clearCacheById/{id}")
+    public ResponseEntity<?> clearCacheById(@PathVariable(value = "id") UUID roleId) throws MyAppException {
+        roleService.clearCacheById(roleId);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/clearAllCache")
+    public ResponseEntity<?> clearAllCache() throws MyAppException {
+        roleService.clearAllCache();
+        return ResponseEntity.ok().build();
+    }
+
 }

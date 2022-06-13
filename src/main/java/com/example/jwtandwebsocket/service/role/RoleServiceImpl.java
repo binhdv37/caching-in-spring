@@ -12,6 +12,9 @@ import com.example.jwtandwebsocket.utils.service.TransactionProxyService;
 import com.example.jwtandwebsocket.utils.validator.DataValidator;
 import com.example.jwtandwebsocket.utils.validator.FieldConstraintValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,8 +44,10 @@ public class RoleServiceImpl implements RoleService {
         this.transactionProxyService = transactionProxyService;
     }
 
+    @Cacheable(value = "role")
     @Override
     public RoleDto findById(UUID id) {
+        System.out.println("Find role by id");
         RoleDto roleDto = roleDao.findById(id);
         if (roleDto == null) {
             return null;
@@ -50,6 +55,30 @@ public class RoleServiceImpl implements RoleService {
         List<PermissionDto> permissionDtoList = permissionDao.findAllByRoleId(id);
         roleDto.setPermissionDtoList(permissionDtoList);
         return roleDto;
+    }
+
+    @CachePut(value = "role") // hàm luôn được thực hiện dù có giá trị cache hay k,
+    @Override
+    public RoleDto reloadById(UUID id) {
+        System.out.println("Reload by id: " + id);
+        // reload
+        RoleDto roleDto = roleDao.findById(id);
+        if (roleDto == null) {
+            return null;
+        }
+        List<PermissionDto> permissionDtoList = permissionDao.findAllByRoleId(id);
+        roleDto.setPermissionDtoList(permissionDtoList);
+        return roleDto;
+    }
+
+    @CacheEvict(value = "role")
+    @Override
+    public void clearCacheById(UUID id) {
+    }
+
+    @CacheEvict(value = "role", allEntries = true)
+    @Override
+    public void clearAllCache() {
     }
 
     @Override
