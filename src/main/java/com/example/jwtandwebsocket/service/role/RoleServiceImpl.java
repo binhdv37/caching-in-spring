@@ -46,7 +46,7 @@ public class RoleServiceImpl implements RoleService {
         this.transactionProxyService = transactionProxyService;
     }
 
-    @Cacheable(value = "role")
+    @Cacheable(value = "role", unless = "#result == null") // luôn lưu caches, trừ khi result = null
     @Override
     public RoleDto findById(UUID id) {
         System.out.println("Find role by id");

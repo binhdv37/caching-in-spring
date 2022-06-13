@@ -14,14 +14,14 @@
 - @Cacheable, @CacheEvict, @CachePut, @Caching, @CacheConfig
 - @Cacheable, @CachePut use method param to be key of caching map.
 
-- Caching with condition parameter:
+- Caching with condition parameter: ( access param ?)
    + Use SpEL 
    + Cache only when expression is valid
    + E.g.
    @CachePut(value="addresses", condition="#customer.name=='Tom'")
    public String getAddress(Customer customer) {...}
    
-- Caching with unless parameter:
+- Caching with unless parameter: ( access function output ?)
    + Use SpEL
    + Based on the output of the method rather than the inpu
    + E.g.
