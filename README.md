@@ -1,5 +1,5 @@
-# spring-jwt-app-base-project
-- This is a spring boot base app with jwt authentication.
+# caching in spring
+- This is a spring boot base app with jwt authentication. Test caching in spring.
 
 # Init db data:
 - Generate db schema by code :
