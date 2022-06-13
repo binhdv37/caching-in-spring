@@ -12,6 +12,7 @@ import com.example.jwtandwebsocket.utils.service.TransactionProxyService;
 import com.example.jwtandwebsocket.utils.validator.DataValidator;
 import com.example.jwtandwebsocket.utils.validator.FieldConstraintValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,6 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
+//@CacheConfig(cacheNames = "role") // we can config cache name here so we dont have to declare multiple time like below
 @Service
 public class RoleServiceImpl implements RoleService {
 
@@ -105,6 +107,8 @@ public class RoleServiceImpl implements RoleService {
             RoleDto saved = transactionProxyService.saveRole(roleDao, roleAndPermisionDao, current, roleDto.getListPermissionId());
             List<PermissionDto> permissionDtoList = permissionDao.findAllByRoleId(saved.getId());
             saved.setPermissionDtoList(permissionDtoList);
+            // update cache
+            clearCacheById(roleDto.getId());
             return saved;
         }
         // create
@@ -112,12 +116,16 @@ public class RoleServiceImpl implements RoleService {
         RoleDto saved = transactionProxyService.saveRole(roleDao, roleAndPermisionDao, roleDto, roleDto.getListPermissionId());
         List<PermissionDto> permissionDtoList = permissionDao.findAllByRoleId(saved.getId());
         saved.setPermissionDtoList(permissionDtoList);
+        clearCacheById(roleDto.getId());
         return saved;
     }
 
     @Override
     public boolean deleteById(UUID id) throws MyAppException {
-        return transactionProxyService.deleteRoleById(roleDao, roleAndPermisionDao, id);
+        boolean result = transactionProxyService.deleteRoleById(roleDao, roleAndPermisionDao, id);
+        // update cache :
+        clearCacheById(id);
+        return result;
     }
 
     private final DataValidator<RoleDto> roleValidator = new DataValidator<RoleDto>() {

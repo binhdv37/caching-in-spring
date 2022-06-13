@@ -11,7 +11,7 @@
 - This project follow some common design pattern like MVC, DAO, DTO, ...
 
 # Some note on spring cache
-- @Cacheable, @CacheEvict, @CachePut, @Caching
+- @Cacheable, @CacheEvict, @CachePut, @Caching, @CacheConfig
 - @Cacheable, @CachePut use method param to be key of caching map.
 
     
