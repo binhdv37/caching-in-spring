@@ -12,17 +12,20 @@ import com.example.jwtandwebsocket.utils.service.TransactionProxyService;
 import com.example.jwtandwebsocket.utils.validator.DataValidator;
 import com.example.jwtandwebsocket.utils.validator.FieldConstraintValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-//@CacheConfig(cacheNames = "role") // we can config cache name here so we dont have to declare multiple time like below
+@CacheConfig(cacheNames = "caching-in-spring-app:role") // we can config cache name here so we dont have to declare multiple time like below
 @Service
 public class RoleServiceImpl implements RoleService {
 
@@ -31,6 +34,7 @@ public class RoleServiceImpl implements RoleService {
     private final RoleAndPermisionDao roleAndPermisionDao;
     private final FieldConstraintValidator validator;
     private final TransactionProxyService transactionProxyService;
+    private final CacheManager cacheManager;
 
     @Autowired
     public RoleServiceImpl(
@@ -38,15 +42,17 @@ public class RoleServiceImpl implements RoleService {
             PermissionDao permissionDao,
             RoleAndPermisionDao roleAndPermisionDao,
             FieldConstraintValidator validator,
-            TransactionProxyService transactionProxyService) {
+            TransactionProxyService transactionProxyService,
+            CacheManager cacheManager) {
         this.roleDao = roleDao;
         this.permissionDao = permissionDao;
         this.roleAndPermisionDao = roleAndPermisionDao;
         this.validator = validator;
         this.transactionProxyService = transactionProxyService;
+        this.cacheManager = cacheManager;
     }
 
-    @Cacheable(value = "role", unless = "#result == null") // luôn lưu caches, trừ khi result = null
+    @Cacheable(key = "#id", unless = "#result == null", condition = "#id != null") // luôn lưu caches, trừ khi result = null
     @Override
     public RoleDto findById(UUID id) {
         System.out.println("Find role by id");
@@ -59,7 +65,7 @@ public class RoleServiceImpl implements RoleService {
         return roleDto;
     }
 
-    @CachePut(value = "role") // hàm luôn được thực hiện dù có giá trị cache hay k,
+    @CachePut(key = "#id", unless = "#result == null", condition = "#id != null") // hàm luôn được thực hiện dù có giá trị cache hay k, giá trị trả về lưu vào cache, trừ th result = null, dk thực hiện id != null
     @Override
     public RoleDto reloadById(UUID id) {
         System.out.println("Reload by id: " + id);
@@ -73,14 +79,16 @@ public class RoleServiceImpl implements RoleService {
         return roleDto;
     }
 
-    @CacheEvict(value = "role")
+    @CacheEvict(key = "#id") // this work as expected when calling from api
     @Override
     public void clearCacheById(UUID id) {
+        System.out.println("Clear cache by id: " + id);
     }
 
-    @CacheEvict(value = "role", allEntries = true)
+    @CacheEvict(allEntries = true) // this work as expected when calling from api
     @Override
     public void clearAllCache() {
+        System.out.println("Clear all cache");
     }
 
     @Override
@@ -108,7 +116,8 @@ public class RoleServiceImpl implements RoleService {
             List<PermissionDto> permissionDtoList = permissionDao.findAllByRoleId(saved.getId());
             saved.setPermissionDtoList(permissionDtoList);
             // update cache
-            clearCacheById(roleDto.getId());
+//            clearCacheById(roleDto.getId()); // this does not work - havent figured it out yet ( aop, proxy transaction or something )
+            removeCacheById(roleDto.getId());
             return saved;
         }
         // create
@@ -116,15 +125,18 @@ public class RoleServiceImpl implements RoleService {
         RoleDto saved = transactionProxyService.saveRole(roleDao, roleAndPermisionDao, roleDto, roleDto.getListPermissionId());
         List<PermissionDto> permissionDtoList = permissionDao.findAllByRoleId(saved.getId());
         saved.setPermissionDtoList(permissionDtoList);
-        clearCacheById(roleDto.getId());
+//        clearCacheById(saved.getId()); // this does not work - havent figured it out yet ( aop, proxy transaction or something )
+        removeCacheById(saved.getId());
         return saved;
     }
 
+//    @CacheEvict(key = "#id")
     @Override
     public boolean deleteById(UUID id) throws MyAppException {
         boolean result = transactionProxyService.deleteRoleById(roleDao, roleAndPermisionDao, id);
         // update cache :
-        clearCacheById(id);
+//        clearCacheById(id); // this does not work - havent figured it out yet ( aop, proxy transaction or something )
+        removeCacheById(id);
         return result;
     }
 
@@ -177,5 +189,12 @@ public class RoleServiceImpl implements RoleService {
         }
 
     };
+
+    private void removeCacheById(UUID id) {
+        Cache cache = cacheManager.getCache("caching-in-spring-app:role");
+        if (cache != null) {
+            cache.evict(id);
+        }
+    }
 
 }

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
@@ -14,7 +15,10 @@ import java.util.UUID;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class RoleDto implements BaseDto {
+public class RoleDto implements BaseDto, Serializable {
+
+    private static final long serialVersionUID = -4439114469417994311L;
+
     private UUID id;
 
     @NotBlank(message = "name can not be blank")
