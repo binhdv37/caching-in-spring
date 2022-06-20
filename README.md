@@ -23,7 +23,7 @@
    
 - Caching with unless parameter: ( access function output ?)
    + Use SpEL
-   + Based on the output of the method rather than the inpu
+   + Based on the output of the method rather than the input
    + E.g.
    @CachePut(value="addresses", unless="#result.length()<64")
    public String getAddress(Customer customer) {...}

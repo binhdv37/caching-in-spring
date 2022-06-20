@@ -22,7 +22,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
-//@CacheConfig(cacheNames = "role") // we can config cache name here so we dont have to declare multiple time like below
+@CacheConfig(cacheNames = "caching-in-spring-app:role") // we can config cache name here so we dont have to declare multiple time like below
 @Service
 public class RoleServiceImpl implements RoleService {
 
@@ -46,7 +46,7 @@ public class RoleServiceImpl implements RoleService {
         this.transactionProxyService = transactionProxyService;
     }
 
-    @Cacheable(value = "role", unless = "#result == null") // luôn lưu caches, trừ khi result = null
+    @Cacheable(unless = "#result == null") // luôn lưu caches, trừ khi result = null
     @Override
     public RoleDto findById(UUID id) {
         System.out.println("Find role by id");
@@ -59,7 +59,7 @@ public class RoleServiceImpl implements RoleService {
         return roleDto;
     }
 
-    @CachePut(value = "role") // hàm luôn được thực hiện dù có giá trị cache hay k,
+    @CachePut(unless = "#result == null") // hàm luôn được thực hiện dù có giá trị cache hay k, giá trị trả về lưu vào cache, trừ th result = null
     @Override
     public RoleDto reloadById(UUID id) {
         System.out.println("Reload by id: " + id);
@@ -73,12 +73,12 @@ public class RoleServiceImpl implements RoleService {
         return roleDto;
     }
 
-    @CacheEvict(value = "role")
+    @CacheEvict
     @Override
     public void clearCacheById(UUID id) {
     }
 
-    @CacheEvict(value = "role", allEntries = true)
+    @CacheEvict(allEntries = true)
     @Override
     public void clearAllCache() {
     }

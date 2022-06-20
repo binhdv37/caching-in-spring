@@ -10,11 +10,11 @@ public interface RoleService {
 
     RoleDto findById(UUID id);
 
-    RoleDto reloadById(UUID id); // reload from db and update cache
+    RoleDto reloadById(UUID id); // for testing purpose only - reload from db and update cache
 
-    void clearCacheById(UUID id);
+    void clearCacheById(UUID id); // for tesing purpose only
 
-    void clearAllCache();
+    void clearAllCache(); // for testing purpose only
 
     List<RoleDto> findAll();
 
