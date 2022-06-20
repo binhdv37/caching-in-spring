@@ -54,3 +54,7 @@
       - VD: Config cache name (Ở class level):
         @CacheConfig(cacheNames = "caching-in-spring-app:role")
         public class RoleServiceImpl implements RoleService {...}
+        
+        
+- Remaining issues:
+   + RoleServiceImpl: Không clear được cache khi call clearCacheById(id) trong save() và deleteById(). 
