@@ -51,6 +51,6 @@
    + @CacheConfig
       - Thường dùng để config 1 số thông số caching dùng chung trong 1 class, đặt ở class level, không cần cần cấu hình riêng
         lẻ ở method level.
-      - VD: Config key name (Ở class level):
+      - VD: Config cache name (Ở class level):
         @CacheConfig(cacheNames = "caching-in-spring-app:role")
         public class RoleServiceImpl implements RoleService {...}

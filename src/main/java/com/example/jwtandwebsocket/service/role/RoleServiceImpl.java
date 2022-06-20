@@ -46,7 +46,7 @@ public class RoleServiceImpl implements RoleService {
         this.transactionProxyService = transactionProxyService;
     }
 
-    @Cacheable(unless = "#result == null", key = "#id", condition = "#id != null") // luôn lưu caches, trừ khi result = null
+    @Cacheable(key = "#id", unless = "#result == null", condition = "#id != null") // luôn lưu caches, trừ khi result = null
     @Override
     public RoleDto findById(UUID id) {
         System.out.println("Find role by id");
@@ -59,7 +59,7 @@ public class RoleServiceImpl implements RoleService {
         return roleDto;
     }
 
-    @CachePut(unless = "#result == null", condition = "#id != null") // hàm luôn được thực hiện dù có giá trị cache hay k, giá trị trả về lưu vào cache, trừ th result = null, dk thực hiện id != null
+    @CachePut(key = "#id", unless = "#result == null", condition = "#id != null") // hàm luôn được thực hiện dù có giá trị cache hay k, giá trị trả về lưu vào cache, trừ th result = null, dk thực hiện id != null
     @Override
     public RoleDto reloadById(UUID id) {
         System.out.println("Reload by id: " + id);
