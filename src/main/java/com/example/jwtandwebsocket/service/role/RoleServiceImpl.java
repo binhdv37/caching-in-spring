@@ -79,13 +79,13 @@ public class RoleServiceImpl implements RoleService {
         return roleDto;
     }
 
-    @CacheEvict(key = "#id")
+    @CacheEvict(key = "#id") // this work as expected when calling from api
     @Override
     public void clearCacheById(UUID id) {
         System.out.println("Clear cache by id: " + id);
     }
 
-    @CacheEvict(allEntries = true)
+    @CacheEvict(allEntries = true) // this work as expected when calling from api
     @Override
     public void clearAllCache() {
         System.out.println("Clear all cache");
